@@ -1,7 +1,7 @@
 const keyboard = {
     properties: {
         capsLock: false,
-        lang: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en"
+        lang: sessionStorage.getItem("lang") ? sessionStorage.getItem("lang") : "en"
     },
 
     createDOM() {
@@ -168,10 +168,10 @@ const keyboard = {
     toggleLanguage() {
         if (this.properties.lang === 'en') {
             this.properties.lang = 'ru';
-            localStorage.setItem("lang", "ru");
+            sessionStorage.setItem("lang", "ru");
           } else {
             this.properties.lang = 'en';
-            localStorage.setItem("lang", "en");
+            sessionStorage.setItem("lang", "en");
           }
           for (const keyNode of this.keys) {
             let key = keyList.find(key => {return key.keyCode === keyNode.id})
