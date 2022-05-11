@@ -68,7 +68,7 @@ p {
   background: rgba(5, 239, 56, 0.5);
 }
 
-.keyboard__key--caps-active {
+.keyboard__key--active {
   background: rgba(5, 239, 56, 0.7);
 }
 
