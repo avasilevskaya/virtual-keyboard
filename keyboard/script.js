@@ -962,7 +962,8 @@ const keyList = [
 
 const keyboard = {
   properties: {
-    capsLock: false,
+    capsLockIsOn: false,
+    shiftIsOn: false,
     lang: sessionStorage.getItem('lang') ? sessionStorage.getItem('lang') : 'en',
   },
 
@@ -1051,7 +1052,7 @@ const keyboard = {
           keyElement.style.width = '100px';
           keyElement.addEventListener('click', () => {
             this.toggleCapsLock();
-            keyElement.classList.toggle('keyboard__key--caps-active', this.properties.capsLock);
+            keyElement.classList.toggle('keyboard__key--caps-active', this.properties.capsLockIsOn);
           });
           break;
 
@@ -1071,10 +1072,26 @@ const keyboard = {
 
         case 'ShiftLeft':
           keyElement.style.width = '100px';
+          keyElement.addEventListener('mousedown', () => {
+            this.properties.shiftIsOn = true;
+            this.toggleShift();
+          });
+          keyElement.addEventListener('mouseup', () => {
+            this.properties.shiftIsOn = false;
+            this.toggleShift();
+          });
           break;
 
         case 'ShiftRight':
           keyElement.style.width = '86px';
+          keyElement.addEventListener('mousedown', () => {
+            this.properties.shiftIsOn = true;
+            this.toggleShift();
+          });
+          keyElement.addEventListener('mouseup', () => {
+            this.properties.shiftIsOn = false;
+            this.toggleShift();
+          });
           break;
 
         case 'Space':
@@ -1119,14 +1136,32 @@ const keyboard = {
   },
 
   toggleCapsLock() {
-    this.properties.capsLock = !this.properties.capsLock;
+    this.properties.capsLockIsOn = !this.properties.capsLockIsOn;
     this.keys.forEach((keyNode) => {
       const key = keyList.find((arg) => arg.keyCode === keyNode.id);
       const keyObj = key[this.properties.lang];
       const keyValueNormal = keyObj.normal;
       const keyValueCaps = keyObj.caps;
       const newKeyNode = document.getElementById(keyNode.id);
-      newKeyNode.textContent = this.properties.capsLock ? keyValueCaps : keyValueNormal;
+      newKeyNode.textContent = this.properties.capsLockIsOn ? keyValueCaps : keyValueNormal;
+      this.keysContainer.replaceChild(keyNode, newKeyNode);
+    });
+  },
+
+  toggleShift() {
+    this.keys.forEach((keyNode) => {
+      const key = keyList.find((arg) => arg.keyCode === keyNode.id);
+      const keyObj = key[this.properties.lang];
+      const keyValueNormal = keyObj.normal;
+      const keyValueCaps = keyObj.caps;
+      const keyValueShift = keyObj.shift;
+      const keyValueShiftCaps = keyObj.shiftCaps;
+      const newKeyNode = document.getElementById(keyNode.id);
+      if (this.properties.shiftIsOn) {
+        newKeyNode.textContent = this.properties.capsLockIsOn ? keyValueShiftCaps : keyValueShift;
+      } else {
+        newKeyNode.textContent = this.properties.capsLockIsOn ? keyValueCaps : keyValueNormal;
+      }
       this.keysContainer.replaceChild(keyNode, newKeyNode);
     });
   },
@@ -1145,7 +1180,7 @@ const keyboard = {
       const keyValueNormal = keyObj.normal;
       const keyValueCaps = keyObj.caps;
       const newKeyNode = document.getElementById(keyNode.id);
-      newKeyNode.textContent = this.properties.capsLock ? keyValueCaps : keyValueNormal;
+      newKeyNode.textContent = this.properties.capsLockIsOn ? keyValueCaps : keyValueNormal;
       this.keysContainer.replaceChild(keyNode, newKeyNode);
     });
   },
@@ -1157,6 +1192,8 @@ const keyboard = {
       const keyObj = key[this.properties.lang];
       const keyValueNormal = keyObj.normal;
       const keyValueCaps = keyObj.caps;
+      const keyValueShift = keyObj.shift;
+      const keyValueShiftCaps = keyObj.shiftCaps;
       switch (keyCode) {
         case 'Tab':
           txt = '\t';
@@ -1168,7 +1205,11 @@ const keyboard = {
           txt = ' ';
           break;
         default:
-          txt = this.properties.capsLock ? keyValueCaps : keyValueNormal;
+          if (keyboard.properties.shiftIsOn) {
+            txt = this.properties.capsLockIsOn ? keyValueShiftCaps : keyValueShift;
+          } else {
+            txt = this.properties.capsLockIsOn ? keyValueCaps : keyValueNormal;
+          }
       }
       const pos = this.textInput.selectionStart;
       this.textInput.setRangeText(txt);
@@ -1202,6 +1243,10 @@ document.addEventListener('keydown', (event) => {
   if (insertKeyValue && document.getElementById(event.code)) {
     keyboard.insertToInput(event.code);
   }
+  if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+    keyboard.properties.shiftIsOn = true;
+    keyboard.toggleShift();
+  }
 });
 
 document.addEventListener('keyup', (event) => {
@@ -1209,15 +1254,16 @@ document.addEventListener('keyup', (event) => {
     if (event.altKey) {
       keyboard.toggleLanguage();
     }
-  }
-  if (event.code === 'AltLeft') {
+  } else if (event.code === 'AltLeft') {
     if (event.ctrlKey) {
       keyboard.toggleLanguage();
     }
-  }
-  if (event.code === 'CapsLock') {
+  } else if (event.code === 'CapsLock') {
     keyboard.toggleCapsLock();
-    document.getElementById(event.code).classList.toggle('keyboard__key--caps-active', keyboard.properties.capsLock);
+    document.getElementById(event.code).classList.toggle('keyboard__key--caps-active', keyboard.properties.capsLockIsOn);
+  } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+    keyboard.properties.shiftIsOn = false;
+    keyboard.toggleShift();
   }
 });
 
