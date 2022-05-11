@@ -1052,7 +1052,7 @@ const keyboard = {
           keyElement.style.width = '100px';
           keyElement.addEventListener('click', () => {
             this.toggleCapsLock();
-            keyElement.classList.toggle('keyboard__key--caps-active', this.properties.capsLockIsOn);
+            keyElement.classList.toggle('keyboard__key--active', this.properties.capsLockIsOn);
           });
           break;
 
@@ -1072,25 +1072,19 @@ const keyboard = {
 
         case 'ShiftLeft':
           keyElement.style.width = '100px';
-          keyElement.addEventListener('mousedown', () => {
-            this.properties.shiftIsOn = true;
+          keyElement.addEventListener('click', () => {
             this.toggleShift();
-          });
-          keyElement.addEventListener('mouseup', () => {
-            this.properties.shiftIsOn = false;
-            this.toggleShift();
+            document.getElementById('ShiftRight').classList.remove('keyboard__key--active');
+            keyElement.classList.toggle('keyboard__key--active', this.properties.shiftIsOn);
           });
           break;
 
         case 'ShiftRight':
           keyElement.style.width = '86px';
-          keyElement.addEventListener('mousedown', () => {
-            this.properties.shiftIsOn = true;
+          keyElement.addEventListener('click', () => {
             this.toggleShift();
-          });
-          keyElement.addEventListener('mouseup', () => {
-            this.properties.shiftIsOn = false;
-            this.toggleShift();
+            document.getElementById('ShiftLeft').classList.remove('keyboard__key--active');
+            keyElement.classList.toggle('keyboard__key--active', this.properties.shiftIsOn);
           });
           break;
 
@@ -1102,11 +1096,32 @@ const keyboard = {
           break;
 
         case 'ControlLeft':
-        case 'ControlRight':
-        case 'MetaLeft':
-        case 'AltLeft':
-        case 'AltRight':
+          keyElement.addEventListener('click', () => {
+            document.getElementById('ControlRight').classList.remove('keyboard__key--active');
+            keyElement.classList.toggle('keyboard__key--active');
+          });
           break;
+
+        case 'ControlRight':
+          keyElement.addEventListener('click', () => {
+            document.getElementById('ControlLeft').classList.remove('keyboard__key--active');
+            keyElement.classList.toggle('keyboard__key--active');
+          });
+          break;
+
+        case 'AltLeft':
+          keyElement.addEventListener('click', () => {
+            if (document.getElementById('ControlLeft').classList.contains('keyboard__key--active')) {
+              document.getElementById('ControlLeft').classList.remove('keyboard__key--active');
+              keyboard.toggleLanguage();
+            }
+          });
+          break;
+
+        case 'AltRight':
+        case 'MetaLeft':
+          break;
+
         case 'ArrowLeft':
         case 'ArrowRight':
         case 'ArrowUp':
@@ -1149,6 +1164,7 @@ const keyboard = {
   },
 
   toggleShift() {
+    this.properties.shiftIsOn = !this.properties.shiftIsOn;
     this.keys.forEach((keyNode) => {
       const key = keyList.find((arg) => arg.keyCode === keyNode.id);
       const keyObj = key[this.properties.lang];
@@ -1244,8 +1260,10 @@ document.addEventListener('keydown', (event) => {
     keyboard.insertToInput(event.code);
   }
   if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
-    keyboard.properties.shiftIsOn = true;
+    keyboard.properties.shiftIsOn = false;
     keyboard.toggleShift();
+    document.getElementById('ShiftLeft').classList.remove('keyboard__key--active');
+    document.getElementById('ShiftRight').classList.remove('keyboard__key--active');
   }
 });
 
@@ -1260,9 +1278,9 @@ document.addEventListener('keyup', (event) => {
     }
   } else if (event.code === 'CapsLock') {
     keyboard.toggleCapsLock();
-    document.getElementById(event.code).classList.toggle('keyboard__key--caps-active', keyboard.properties.capsLockIsOn);
+    document.getElementById(event.code).classList.toggle('keyboard__key--active', keyboard.properties.capsLockIsOn);
   } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
-    keyboard.properties.shiftIsOn = false;
+    keyboard.properties.shiftIsOn = true;
     keyboard.toggleShift();
   }
 });
