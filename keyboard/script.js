@@ -1,8 +1,7 @@
 const keyboard = {
-
     properties: {
         capsLock: false,
-        lang: "en"
+        lang: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en"
     },
 
     createDOM() {
@@ -20,7 +19,7 @@ const keyboard = {
         this.keysContainer.classList.add("keyboard__keys");
         const headText = document.createTextNode("Виртуальная клавиатура");
         const descriptionText = document.createTextNode("Создана в Windows.");
-        const instructionText = document.createTextNode("Для смены языка раскладки используйте левый Shift");  
+        const instructionText = document.createTextNode("Для смены языка раскладки используйте левый Ctrl + левый Alt");  
 
         document.body.appendChild(this.wrapper);
         this.wrapper.appendChild(this.header);
@@ -32,11 +31,11 @@ const keyboard = {
         this.wrapper.appendChild(this.textInput);
         this.wrapper.appendChild(this.keyboard);
         this.keyboard.appendChild(this.keysContainer);
-        this.keysContainer.appendChild(this._createKeys());
+        this.keysContainer.appendChild(this.createKeys());
         this.keys = this.keysContainer.querySelectorAll(".keyboard__key");
     },
 
-    _createKeys() {
+    createKeys() {
         const keysFragment = document.createDocumentFragment();
 
         keyList.forEach(key => {
@@ -50,6 +49,12 @@ const keyboard = {
             keyElement.classList.add("keyboard__key");
             keyElement.setAttribute('id', keyCode);
             keyElement.textContent = keyValueNormal;
+            keyElement.addEventListener("click", () => {
+              keyElement.classList.toggle("keyboard__key--animated");
+              keyElement.addEventListener('animationend', () => {
+                keyElement.classList.remove("keyboard__key--animated");
+              });
+            });
 
             switch (keyCode) {
                 case "Backspace":
@@ -105,9 +110,6 @@ const keyboard = {
 
                 case "ShiftLeft":
                     keyElement.style.width = '100px';
-                    keyElement.addEventListener("click", () => {
-                        this.toggleLanguage();
-                    });
                     break;
                 
                 case "ShiftRight":
@@ -166,8 +168,10 @@ const keyboard = {
     toggleLanguage() {
         if (this.properties.lang === 'en') {
             this.properties.lang = 'ru';
+            localStorage.setItem("lang", "ru");
           } else {
             this.properties.lang = 'en';
+            localStorage.setItem("lang", "en");
           }
           for (const keyNode of this.keys) {
             let key = keyList.find(key => {return key.keyCode === keyNode.id})
@@ -194,8 +198,55 @@ const keyboard = {
         this.textInput.selectionStart = pos + txt.length;
         this.textInput.selectionEnd = this.textInput.selectionStart;
         this.textInput.focus();
-      }
+    }
+    
 };
+
+document.addEventListener('keydown', function(event){
+  const prevetDefault = [
+    "Backspace", "Delete",
+    "Tab", "Space", "Enter", 
+    "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"
+  ].indexOf(event.code) == -1;
+  if (prevetDefault && document.getElementById(event.code)) {
+    event.preventDefault();
+  }
+  let animatedKey = document.getElementById(event.code);
+  if (animatedKey) {
+    animatedKey.classList.toggle("keyboard__key--animated");
+    animatedKey.addEventListener('animationend', () => {
+      animatedKey.classList.remove("keyboard__key--animated");
+    });
+  }
+  const insertKeyValue = [
+    "Backspace", "Delete", "CapsLock", "Enter", 
+    "Tab", "ShiftLeft", "ShiftRight", "Space",
+    "ControlLeft", "ControlRight", "MetaLeft",
+    "AltLeft", "AltRight", "ArrowLeft",
+    "ArrowRight", "ArrowUp", "ArrowDown"
+  ].indexOf(event.code) == -1;
+  if (insertKeyValue && document.getElementById(event.code)) {
+    keyboard.insertToInput(event.code);
+  }
+});
+
+document.addEventListener('keyup', function(event){
+  if (event.code === "ControlLeft") {
+    if (event.altKey) {
+      keyboard.toggleLanguage();
+    }
+  }
+  if (event.code === "AltLeft") {
+    if (event.ctrlKey) {
+      keyboard.toggleLanguage();
+    }
+  }
+  if (event.code === "CapsLock") {
+      keyboard.toggleCapsLock();
+      document.getElementById(event.code).classList.toggle("keyboard__key--caps-active", keyboard.properties.capsLock);
+  }
+
+});
 
 window.addEventListener("DOMContentLoaded", function () {
     keyboard.createDOM();
@@ -1162,4 +1213,4 @@ const keyList = [
         shiftCaps: 'Ctrl',
       },
     },
-  ];
+];

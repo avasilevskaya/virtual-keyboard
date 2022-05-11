@@ -60,12 +60,30 @@ p {
   padding: 0;
   -webkit-tap-highlight-color: transparent;
   position: relative;
+  transition-property: background-color;
+  transition-duration: 0.2s;
 }
 
 .keyboard__key:hover {
-  background: rgba(5, 239, 56, 0.4);
+  background: rgba(5, 239, 56, 0.5);
 }
 
 .keyboard__key--caps-active {
-  background: rgba(5, 239, 56, 0.5);
+  background: rgba(5, 239, 56, 0.7);
+}
+
+.keyboard__key--animated {
+  animation-name: keyPress;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+}
+
+@keyframes keyPress {
+  from {
+    box-shadow: 0 -250px 70px -120px rgba(5, 239, 56, 0.5) inset;
+  }
+  to {
+    box-shadow: 0 0px 70px -120px rgba(5, 239, 56, 0.5) inset;
+
+  }
 }
