@@ -1089,10 +1089,14 @@ const keyboard = {
         case 'MetaLeft':
         case 'AltLeft':
         case 'AltRight':
+          break;
         case 'ArrowLeft':
         case 'ArrowRight':
         case 'ArrowUp':
         case 'ArrowDown':
+          keyElement.addEventListener('click', () => {
+            this.insertToInput(keyCode);
+          });
           break;
 
         default:
@@ -1178,7 +1182,6 @@ const keyboard = {
 document.addEventListener('keydown', (event) => {
   const preventDefault = [
     'Backspace', 'Delete',
-    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
   ].indexOf(event.code) === -1;
   if (preventDefault && document.getElementById(event.code)) {
     event.preventDefault();
@@ -1194,8 +1197,7 @@ document.addEventListener('keydown', (event) => {
     'Backspace', 'Delete', 'CapsLock',
     'ShiftLeft', 'ShiftRight',
     'ControlLeft', 'ControlRight', 'MetaLeft',
-    'AltLeft', 'AltRight', 'ArrowLeft',
-    'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'AltLeft', 'AltRight',
   ].indexOf(event.code) === -1;
   if (insertKeyValue && document.getElementById(event.code)) {
     keyboard.insertToInput(event.code);
